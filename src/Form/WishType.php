@@ -36,14 +36,6 @@ class WishType extends AbstractType
                     'class' => 'glass-input',
                 ],
             ])
-            ->add('author', TextType::class, [
-                'label' => 'Auteur',
-                'attr' => [
-                    'placeholder' => 'Votre nom',
-                    'maxlength' => 50,
-                    'class' => 'glass-input',
-                ],
-            ])
             ->add('category', EntityType::class, [
                 'class' => Category::class,
                 'choice_label' => 'name',

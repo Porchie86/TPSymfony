@@ -24,8 +24,14 @@
 
                         {{ form_row(form.title) }}
                         {{ form_row(form.description) }}
-                        {{ form_row(form.author) }}
-                        {{ form_row(form.category) }}
+                        <div class="mb-3 d-flex align-items-center gap-2">
+                            {{ form_row(form.category) }}
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <a href="{{ path('app_category_admin_new') }}" class="btn btn-outline-primary btn-sm" title="Ajouter une catégorie">
+                                    <span class="fw-bold" style="font-size:1.5rem;line-height:1;">+</span>
+                                </a>
+                            {% endif %}
+                        </div>
                         {{ form_row(form.image) }}
                         {{ form_row(form.isPublished) }}
                         <div class="d-flex gap-2 mt-3">

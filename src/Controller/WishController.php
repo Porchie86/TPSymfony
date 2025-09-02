@@ -60,30 +60,37 @@ final class WishController extends AbstractController
     #[Route('/formWish', name: 'formWish', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $em, FileManager $fileManager): Response
     {
+        $user = $this->getUser();
+
         $wish = new Wish();
+        $wish->setAuthor($user?->getPseudo() ?? 'Anonyme');
         $form = $this->createForm(WishType::class, $wish);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $file = $form->get('image')->getData();
-            if ($file instanceof UploadedFile) {
 
-                if ($name = $fileManager->upload($file, 'uploads', $form->get('image')->getName()))
-                {
-                    $wish->setImage($name);
+        if ($form->isSubmitted()){
+            if($form->isValid()) {
+                $file = $form->get('image')->getData();
+                if ($file instanceof UploadedFile) {
+                    if ($name = $fileManager->upload($file, 'uploads', $form->get('image')->getName())) {
+                        $wish->setImage($name);
+                    }
                 }
+
+                $em->persist($wish);
+                $em->flush();
+
+                $this->addFlash('success', 'Idée créée avec succès.');
+                return $this->redirectToRoute('app_wish_detail', ['id' => $wish->getId()]);
             }
-
-
-            $em->persist($wish);
-            $em->flush();
-            $this->addFlash('success', 'Idée créée avec succès.');
-
-            return $this->redirectToRoute('app_wish_detail', ['id' => $wish->getId()]);
         }
 
         if ($form->isSubmitted() && !$form->isValid()) {
             $this->addFlash('error', 'Le formulaire contient des erreurs.');
+            return $this->render('wish/formWish.html.twig', [
+                'form' => $form->createView(),
+                'is_edit' => false,
+            ], new Response(null, 422));
         }
 
         return $this->render('wish/formWish.html.twig', [
@@ -92,12 +99,19 @@ final class WishController extends AbstractController
         ]);
     }
 
+
     // Formulaire d'édition d'une idée
     #[Route('/{id}/edit', name: 'edit', requirements: ['id' => '\\d+'], methods: ['GET', 'POST'])]
     public function edit(Request $request, Wish $wish = null, EntityManagerInterface $em, FileManager $fileManager): Response
     {
         if (!$wish) {
             throw $this->createNotFoundException('Idée introuvable');
+        }
+
+        $user = $this->getUser();
+        $isAuthor = $user && $wish->getAuthor() === $user->getPseudo();
+        if (!$isAuthor) {
+            throw $this->createAccessDeniedException('Vous ne pouvez modifier que vos propres idées.');
         }
 
         $form = $this->createForm(WishType::class, $wish);
@@ -120,6 +134,10 @@ final class WishController extends AbstractController
 
         if ($form->isSubmitted() && !$form->isValid()) {
             $this->addFlash('error', 'Le formulaire contient des erreurs.');
+            return $this->render('wish/formWish.html.twig', [
+                'form' => $form->createView(),
+                'is_edit' => true,
+            ], new Response(null, 422));
         }
 
         return $this->render('wish/formWish.html.twig', [
@@ -134,6 +152,13 @@ final class WishController extends AbstractController
     {
         if (!$wish) {
             throw $this->createNotFoundException('Idée introuvable');
+        }
+
+        $user = $this->getUser();
+        $isAuthor = $user && $wish->getAuthor() === $user->getPseudo();
+        $isAdmin = $user && method_exists($user, 'isAdmin') && $user->isAdmin();
+        if (!$isAuthor && !$isAdmin) {
+            throw $this->createAccessDeniedException('Vous ne pouvez supprimer que vos propres idées ou être administrateur.');
         }
 
         $token = $request->request->get('_token');

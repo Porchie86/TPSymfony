@@ -23,17 +23,17 @@ class WishRepository extends ServiceEntityRepository
      * @param string|null $term Terme à chercher dans titre/description/auteur
      * @param string|null $author Auteur exact à filtrer (optionnel)
      * @param int|null $categoryId Id de la catégorie (optionnel)
-     * @param string $dateOrder "ASC" ou "DESC"
+     * @param string $idOrder "ASC" ou "DESC"
      * @return Wish[]
      */
-    public function searchPublished(?string $term, ?string $author = null, ?int $categoryId = null, string $dateOrder = 'DESC'): array
+    public function searchPublished(?string $term, ?string $author = null, ?int $categoryId = null, string $idOrder = 'DESC'): array
     {
-        $dateOrder = strtoupper($dateOrder) === 'ASC' ? 'ASC' : 'DESC';
+        $idOrder = strtoupper($idOrder) === 'ASC' ? 'ASC' : 'DESC';
 
         $qb = $this->createQueryBuilder('w')
             ->andWhere('w.isPublished = :published')
             ->setParameter('published', true)
-            ->orderBy('w.dateCreated', $dateOrder);
+            ->orderBy('w.id', $idOrder);
 
         if ($term !== null && trim($term) !== '') {
             $qb->andWhere('(w.title LIKE :t OR w.description LIKE :t OR w.author LIKE :t)')
@@ -46,9 +46,8 @@ class WishRepository extends ServiceEntityRepository
         }
 
         if ($categoryId !== null && is_numeric($categoryId)) {
-            // filtre par catégorie (on peut comparer l'entité association à l'id)
             $qb->andWhere('w.category = :c')
-               ->setParameter('c', (int) $categoryId);
+               ->setParameter('c', $categoryId);
         }
 
         return $qb->getQuery()->getResult();
