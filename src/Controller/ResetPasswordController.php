@@ -22,7 +22,6 @@ class ResetPasswordController extends AbstractController
     {
         $form = $this->createFormBuilder()
             ->add('email', EmailType::class, ['label' => 'Votre email'])
-            ->add('submit', SubmitType::class, ['label' => 'Envoyer le lien de réinitialisation'])
             ->getForm();
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -59,7 +58,6 @@ class ResetPasswordController extends AbstractController
         }
         $form = $this->createFormBuilder()
             ->add('plainPassword', PasswordType::class, ['label' => 'Nouveau mot de passe'])
-            ->add('submit', SubmitType::class, ['label' => 'Réinitialiser'])
             ->getForm();
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {

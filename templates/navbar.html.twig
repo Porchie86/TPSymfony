@@ -16,6 +16,9 @@
                 <li class="nav-item">
                     <a class="nav-link link-underline {{ app.request.attributes.get('_route') == 'app_category' ? 'active' }}" href="{{ path('app_category') }}">Categorie</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link link-underline {{ app.request.attributes.get('_route') == 'app_admin_users' ? 'active' }}" href="{{ path('app_admin_users') }}">Utilisateurs</a>
+                </li>
                 {% endif %}
                 <li class="nav-item">
                     <a class="nav-link link-underline {{ app.request.attributes.get('_route') == 'app_about' ? 'active' }}" href="{{ path('app_about') }}">About us</a>
