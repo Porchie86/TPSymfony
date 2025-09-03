@@ -25,12 +25,17 @@
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <span>{{ category.name }}</span>
                                     {% if is_granted('ROLE_ADMIN') %}
-                                        <form action="{{ path('app_category_admin_delete', {id: category.id}) }}" method="post" style="display:inline;" onsubmit="return confirm('Confirmer la suppression de cette catégorie ?');">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('delete_category_' ~ category.id) }}">
-                                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Supprimer la catégorie">
-                                                <span class="fw-bold" style="font-size:1.5rem;line-height:1;">−</span>
-                                            </button>
-                                        </form>
+                                        <div class="d-flex gap-2">
+                                            <a href="{{ path('app_category_admin_edit', {id: category.id}) }}" class="btn btn-outline-secondary btn-sm" title="Modifier la catégorie">
+                                                <span class="fw-bold" style="font-size:1.2rem;line-height:1;">✎</span>
+                                            </a>
+                                            <form action="{{ path('app_category_admin_delete', {id: category.id}) }}" method="post" style="display:inline;" onsubmit="return confirm('Confirmer la suppression de cette catégorie ?');">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete_category_' ~ category.id) }}">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm" title="Supprimer la catégorie">
+                                                    <span class="fw-bold" style="font-size:1.5rem;line-height:1;">−</span>
+                                                </button>
+                                            </form>
+                                        </div>
                                     {% endif %}
                                 </li>
                             {% endfor %}

@@ -55,6 +55,14 @@ class Wish
     #[ORM\JoinColumn(nullable: false)]
     private ?Category $category = null;
 
+    #[ORM\OneToMany(mappedBy: 'wish', targetEntity: \App\Entity\Comment::class, cascade: ['remove'])]
+    private Collection $comments;
+
+    public function __construct()
+    {
+        $this->comments = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -152,6 +160,33 @@ class Wish
     public function setCategory(?Category $category): static
     {
         $this->category = $category;
+
+        return $this;
+    }
+
+    public function getComments(): Collection
+    {
+        return $this->comments;
+    }
+
+    public function addComment(\App\Entity\Comment $comment): self
+    {
+        if (!$this->comments->contains($comment)) {
+            $this->comments[] = $comment;
+            $comment->setWish($this);
+        }
+
+        return $this;
+    }
+
+    public function removeComment(\App\Entity\Comment $comment): self
+    {
+        if ($this->comments->removeElement($comment)) {
+            // set the owning side to null (unless already changed)
+            if ($comment->getWish() === $this) {
+                $comment->setWish(null);
+            }
+        }
 
         return $this;
     }

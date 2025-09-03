@@ -44,15 +44,34 @@ final class WishController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'detail', requirements: ['id' => '\\d+'], methods: ['GET'])]
-    public function detail(Wish $wish = null): Response
+    #[Route('/{id}', name: 'detail', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    public function detail(Wish $wish = null, Request $request, EntityManagerInterface $em): Response
     {
         if (!$wish) {
             throw $this->createNotFoundException('Idée introuvable');
         }
 
-        return $this->render('wish/detail.html.twig', [
+        // Création du formulaire de commentaire si utilisateur connecté
+        $commentForm = null;
+        if ($this->getUser()) {
+            $comment = new \App\Entity\Comment();
+            $form = $this->createForm(\App\Form\CommentType::class, $comment);
+            $form->handleRequest($request);
+            if ($form->isSubmitted() && $form->isValid()) {
+                $comment->setWish($wish);
+                $comment->setAuthor($this->getUser());
+                $comment->setCreatedAt(new \DateTime());
+                $em->persist($comment);
+                $em->flush();
+                $this->addFlash('success', 'Commentaire ajouté !');
+                return $this->redirectToRoute('app_wish_detail', ['id' => $wish->getId()]);
+            }
+            $commentForm = $form->createView();
+        }
+
+        return $this->render('wish/show.html.twig', [
             'wish' => $wish,
+            'commentForm' => $commentForm,
         ]);
     }
 

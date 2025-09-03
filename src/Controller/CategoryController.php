@@ -8,7 +8,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class CategoryController extends AbstractController
 {
-    #[Route('/category', name: 'app_category')]
+    #[Route('/categorie/admin', name: 'app_category')]
     public function index(\App\Repository\CategoryRepository $categoryRepository): Response
     {
         $categories = $categoryRepository->findAll();
@@ -28,7 +28,7 @@ final class CategoryController extends AbstractController
             $em->persist($category);
             $em->flush();
             $this->addFlash('success', 'Catégorie créée avec succès.');
-            return $this->redirectToRoute('app_main');
+            return $this->redirectToRoute('app_category');
         }
 
         return $this->render('category/new.html.twig', [
@@ -55,5 +55,31 @@ final class CategoryController extends AbstractController
         $em->flush();
         $this->addFlash('success', 'Catégorie supprimée.');
         return $this->redirectToRoute('app_category');
+    }
+
+    #[Route('/categorie/admin/edit/{id}', name: 'app_category_admin_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    public function adminEdit(int $id, \Symfony\Component\HttpFoundation\Request $request, \Doctrine\ORM\EntityManagerInterface $em, \App\Repository\CategoryRepository $categoryRepository): Response
+    {
+        $category = $categoryRepository->find($id);
+        if (!$category) {
+            throw $this->createNotFoundException('Catégorie introuvable');
+        }
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            throw $this->createAccessDeniedException('Seul un administrateur peut modifier une catégorie.');
+        }
+        $form = $this->createForm(\App\Form\CategoryType::class, $category);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->flush();
+            $this->addFlash('success', 'Catégorie modifiée avec succès.');
+            return $this->redirectToRoute('app_category');
+        }
+
+        return $this->render('category/new.html.twig', [
+            'form' => $form->createView(),
+            'edit_mode' => true,
+            'category' => $category,
+        ]);
     }
 }

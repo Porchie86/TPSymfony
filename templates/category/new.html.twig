@@ -12,8 +12,8 @@
                     {{ form_start(form) }}
                         {{ form_row(form.name) }}
                         <div class="d-flex gap-2 mt-3">
-                            <a href="{{ path('app_wish_formWish') }}" class="btn btn-glass">Annuler</a>
-                            <button type="submit" class="btn btn-primary">Créer</button>
+                            <a href="{{ path('app_category') }}" class="btn btn-glass">Annuler</a>
+                            <button type="submit" class="btn btn-primary">{{ edit_mode is defined and edit_mode ? 'Modifier' : 'Créer' }}</button>
                         </div>
                     {{ form_end(form) }}
                 </div>
@@ -22,4 +22,3 @@
     </div>
 </div>
 {% endblock %}
-
