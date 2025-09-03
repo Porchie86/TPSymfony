@@ -7,6 +7,7 @@ use App\Form\WishType;
 use App\Repository\WishRepository;
 use App\Repository\CategoryRepository;
 use App\Services\FileManager;
+use App\Services\Censurator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -19,6 +20,8 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 #[Route('/wishes', name: 'app_wish_')]
 final class WishController extends AbstractController
 {
+    public function __construct(private Censurator $censurator) {}
+
     #[Route('', name: 'list', methods: ['GET'])]
     public function list(Request $request, WishRepository $wishRepository, CategoryRepository $categoryRepository): Response
     {
@@ -91,6 +94,27 @@ final class WishController extends AbstractController
 
         if ($form->isSubmitted()){
             if($form->isValid()) {
+                // Censor the title and description before saving
+                // Debugging: Log the original and censored values
+                $originalTitle = $wish->getTitle();
+                $originalDescription = $wish->getDescription();
+                $originalAuthor = $wish->getAuthor();
+
+                $censoredTitle = $this->censurator->purify($originalTitle);
+                $wish->setTitle($censoredTitle);
+
+                $censoredDescription = $this->censurator->purify($originalDescription);
+                $wish->setDescription($censoredDescription);
+
+                $censoredAuthor = $this->censurator->purify($originalAuthor);
+                $wish->setAuthor($censoredAuthor);
+
+                if ($wish->getImage()) {
+                    $originalImage = $wish->getImage();
+                    $censoredImage = $this->censurator->purify($originalImage);
+                    $wish->setImage($censoredImage);
+                }
+
                 $file = $form->get('image')->getData();
                 if ($file instanceof UploadedFile) {
                     if ($name = $fileManager->upload($file, 'uploads', $form->get('image')->getName())) {
