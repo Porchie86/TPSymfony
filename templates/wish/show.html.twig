@@ -42,12 +42,13 @@
             {% endfor %}
         </ul>
     {% endif %}
-    {% if app.user %}
+    {% if app.user and not isAuthor %}
         <h4>Ajouter un commentaire</h4>
         {% include 'comment/new.html.twig' with {form: commentForm, wish: wish} %}
+    {% elseif app.user and isAuthor %}
+        <div class="alert alert-warning">Vous ne pouvez pas commenter votre propre idée.</div>
     {% else %}
         <div class="alert alert-warning">Connectez-vous pour ajouter un commentaire.</div>
     {% endif %}
 </div>
 {% endblock %}
-

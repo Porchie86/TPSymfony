@@ -12,7 +12,7 @@
                 <li class="nav-item">
                     <a class="nav-link link-underline {{ app.request.attributes.get('_route') starts with 'app_wish_' ? 'active' }}" href="{{ path('app_wish_list') }}">Idées</a>
                 </li>
-                {% if app.user.isAdmin %}
+                {% if app.user and app.user.isAdmin %}
                 <li class="nav-item">
                     <a class="nav-link link-underline {{ app.request.attributes.get('_route') == 'app_category' ? 'active' }}" href="{{ path('app_category') }}">Categorie</a>
                 </li>

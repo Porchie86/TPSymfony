@@ -41,6 +41,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?bool $isAdmin = false;
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $resetToken = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $resetTokenExpires = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -134,6 +140,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->isAdmin = $isAdmin;
 
+        return $this;
+    }
+
+    public function getResetToken(): ?string
+    {
+        return $this->resetToken;
+    }
+    public function setResetToken(?string $resetToken): self
+    {
+        $this->resetToken = $resetToken;
+        return $this;
+    }
+    public function getResetTokenExpires(): ?\DateTimeInterface
+    {
+        return $this->resetTokenExpires;
+    }
+    public function setResetTokenExpires(?\DateTimeInterface $expires): self
+    {
+        $this->resetTokenExpires = $expires;
         return $this;
     }
 }

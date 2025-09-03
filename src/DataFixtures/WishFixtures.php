@@ -34,6 +34,7 @@ class WishFixtures extends Fixture implements DependentFixtureInterface
                 ->setAuthor($faker->name())
                 ->setIsPublished(true)
                 ->setDateCreated($faker->dateTimeBetween('-1 year', 'now'))
+                ->setImage('therookie.png')
             ;
 
             // Assigner une catégorie aléatoire via le repository

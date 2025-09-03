@@ -51,15 +51,16 @@ final class WishController extends AbstractController
             throw $this->createNotFoundException('Idée introuvable');
         }
 
-        // Création du formulaire de commentaire si utilisateur connecté
         $commentForm = null;
-        if ($this->getUser()) {
+        $user = $this->getUser();
+        $isAuthor = $user && $wish->getAuthor() === $user->getPseudo();
+        if ($user && !$isAuthor) {
             $comment = new \App\Entity\Comment();
             $form = $this->createForm(\App\Form\CommentType::class, $comment);
             $form->handleRequest($request);
             if ($form->isSubmitted() && $form->isValid()) {
                 $comment->setWish($wish);
-                $comment->setAuthor($this->getUser());
+                $comment->setAuthor($user);
                 $comment->setCreatedAt(new \DateTime());
                 $em->persist($comment);
                 $em->flush();
@@ -72,6 +73,7 @@ final class WishController extends AbstractController
         return $this->render('wish/show.html.twig', [
             'wish' => $wish,
             'commentForm' => $commentForm,
+            'isAuthor' => $isAuthor,
         ]);
     }
 
